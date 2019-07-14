@@ -1,0 +1,32 @@
+html, body {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+        background: #222234;
+    }
+
+    body > div, #root {
+        position: absolute;
+        overflow: hidden;
+    }
+
+    #map, #root {
+        left: 0;
+        top: 0;
+        z-index: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    #map svg {
+        width: 100%;
+        height: 100%;
+    }
+
+    .feature {
+        fill : #2C2C43;
+        stroke : #4A4A70;
+    }
