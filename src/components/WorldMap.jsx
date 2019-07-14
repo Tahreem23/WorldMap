@@ -1,139 +1,173 @@
-import React, { Component } from 'react';
-import { select as d3Select, d3Event } from 'd3-selection';
-import { scaleLinear } from 'd3';
-import { select } from 'd3-selection';
-import { axisBottom, axisLeft } from 'd3-axis';
-import { geoMercator, geoPath } from 'd3-geo';
-//import { behavior } from 'd3-zoom';
-//
-//
-import './WorldMap.css';
-import countries from '../resources/world-countries.json';
-
-import { SocketProvider } from 'socket.io-react';
-import io from 'socket.io-client';
+import React, { Component } from "react";
+import "d3";
+import * as d3Z from "d3-zoom";
+import * as d3 from "d3-selection";
+//import d3Scale from 'd3-scale'
+import { geoMercator, geoPath } from "d3-geo";
+import "./WorldMap.css";
+import countries from "../resources/world-countries.json";
 
 //
 export default class WorldMap extends Component {
-
   constructor(props) {
-        super(props);
-      
-  }
+    super(props);
 
-  componentWillMount() {
+    this.width = 1300; //document.body.clientWidth,
+    this.height = 600; //document.body.clientHeight;
+    this.circleRadius = 2;
+    this.lstRadius = [7, this.circleRadius];
+    this.lstColor = ["green", "white"];
+    this.duration = parseInt(this.props.pulseDuration, 10); //500
+    this.visibilityHours=parseInt(this.props.maxVisibilityHours,10);
+    this.historicData=parseInt(this.props.historicData,10);
+    this.lstShots = [];
+    this.projection = geoMercator();
+    this.path = geoPath().projection(this.projection);
 
-     const socket = io('https://api.arccosgolf.com?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiIwOTNkZGY4MDRiMGYxMWU0YTE1OWFmMDIyZGY1ZWU5MiIsImlhdCI6MTUzNDMzODg1NSwiZXhwIjoxNTM0MzgyMDU1LCJhdWQiOiJhcGkiLCJpc3MiOiJhcmNjb3MifQ.qWL1S4lFIxCWKWZrzGj2bCKa8Hk7byyFpZmdgIm7nAw', connectionOptions);
+    this.d3Zoom = d3Z.zoom();
 
-        socket.on('shotTaken', function(msg){
-            
-            console.log(msg);
-          
-        });
+    this.getCirclePos = d => {
+      return "translate(" + this.projection([d.long, d.lat]) + ")";
+    };
+    this.svgObj = null;
+    this.feature = null;
+    this.circle = null;
 
-        socket.on('invalidToken', function(msg){
-          
-        });
-
-     const connectionOptions =  {
-            "force new connection" : true,
-            "reconnectionAttempts": "Infinity", //this should probably not be Infinity
-            "timeout" : 10000, //before connect_error and connect_timeout are emitted.
-            "transports" : ["websocket"],
-            "path":'/worldShotMap/listen', //the path the server is accepting requests on,
-         origin: 'http://localhost:3000'
-        };
+    this.componentDidMount = this.componentDidMount.bind(this);
+    this.componentDidUpdate = this.componentDidUpdate.bind(this);
   }
 
   componentDidMount() {
-      
-      
-    
-//      const layer,
-//        zoomScale,
-//        setting
-//        ;
-//      
-//      const vis.runShow = function(data, dom, w, h, asetting) {
-//          
-//          
-//      }
-      
-      const projection = geoMercator();
-      
-      const path = geoPath()
-        .projection(projection);
-      
-      const ctr = (d) => {
-            return "translate(" + projection([d.longitude, d.latitude]) + ")";
-        }
-      
-      const w = document.body.clientWidth, h = document.body.clientHeight;
+
+    this.duration = parseInt(this.props.pulseDuration, 10); //500
+    this.visibilityHours==parseInt(this.props.maxVisibilityHours,10);
+    this.historicData=parseInt(this.props.historicData,10)
 
 
-      const fsvg = select(this.refs.svgMap);
-      
-      const data = countries;
-
-      const feature = fsvg
-            .selectAll("path.feature")
-            .data(data.features)
-            .enter().append("path")
-            .attr("class", "feature")
-        ;
-      
-      projection
-            .scale(w/6.5)
-            .translate([w / 2, h / 1.6])
-        ;
-      
-      feature.attr("d", path);
-      
-      const needPaintCapital = [];
-        
-        needPaintCapital.push({type:"1", color:"yellow", "longitude":"67.0011", "latitude":"24.8607"});
-        needPaintCapital.push({type:"1", color:"red", "longitude":"90.4113","latitude":"23.7055"});
-        needPaintCapital.push({type:"2", color:"red", "longitude":"35.5134","latitude":"33.8872"});
-        needPaintCapital.push({type:"1", color:"red", "longitude":"-119.4179","latitude":"36.7783"});
-        needPaintCapital.push({type:"1", color:"red", "longitude":"-0.126236","latitude":"51.5002"});
-        needPaintCapital.push({type:"1", color:"red", "longitude":"21.02","latitude":"52.26"});
-        needPaintCapital.push({type:"2", color:"red", "longitude":"32.5713","latitude":"-25.9664"});
-        needPaintCapital.push({type:"1", color:"red", "longitude":"23.7166","latitude":"37.9792"});
-        needPaintCapital.push({type:"1", color:"red", "longitude":"13.4115","latitude":"52.5235"});
-        needPaintCapital.push({type:"2", color:"red", "longitude":"74.0060","latitude":"40.7128"});
-        needPaintCapital.push({type:"1", color:"red", "longitude":"47.9218","latitude":"15.8267"});
-        needPaintCapital.push({type:"1", color:"red", "longitude":"151.2093","latitude":"-33.8688"});
-        needPaintCapital.push({type:"1", color:"red", "longitude":"-51.9253","latitude":"-14.2350"});
-      
-     const circle = fsvg.selectAll("circle")
-            .data(needPaintCapital)
-            .enter()
-            .append("circle")
-            .attr("r", 3)
-            .attr("fill", function(d){
-            
-                if(d.type == "1")
-                    return "red";
-                else return "yellow";
-            
-            })
-            .attr("transform", ctr);
-   }
-
-   componentDidUpdate(){
-
-       
-   }
-
-   render() {
-       
-      
-       
-        return (
-            
-            <svg ref="svgMap"></svg>
-          
-        );
-
+    for (var i = 0; i < this.props.data.length; i++) {
+      this.lstShots.push(JSON.parse(JSON.stringify(this.props.data[i])));
     }
+    this.svgObj = d3.select("#svgMap")
+   //responsive SVG needs these 2 attributes and no width and height attr
+   .attr("preserveAspectRatio", "xMinYMin meet")
+   .attr("viewBox", "0 0 1280 720")
+   //class to make it responsive
+   .classed("svg-content-responsive", true);
+
+    this.feature = this.svgObj
+      .selectAll("path.feature")
+      .data(countries.features)
+      .enter()
+      .append("path")
+      .attr("class", "feature");
+
+    this.projection
+      .scale(this.width / 6.5)
+      .translate([this.width / 2, this.height / 1.6]);
+
+    this.feature.attr("d", this.path);
+
+    const proj = this.projection;
+    const feat = this.feature;
+    const p = this.path;
+
+    this.zoom = this.d3Zoom.on("zoom", function() {
+      proj
+        .translate([d3.event.transform.x, d3.event.transform.y])
+        .scale(d3.event.transform.k);
+      feat.attr("d", p);
+    });
+
+    this.svgObj.call(this.zoom);
+    this.svgObj.call(
+      this.zoom.transform,
+      d3Z.zoomIdentity
+        .translate(
+          this.projection.translate()[0],
+          this.projection.translate()[1]
+        )
+        .scale(this.projection.scale())
+    );
+  }
+
+  componentDidUpdate() {
+console.log(this.props.pulseDuration);
+console.log("pulse value"+this.duration);
+    this.duration = parseInt(this.props.pulseDuration, 10); //500
+    this.visibilityHours==parseInt(this.props.maxVisibilityHours,10);
+    this.historicData=parseInt(this.props.historicData,10)
+
+    this.lstShots = [];
+
+    for (var i = 0; i < this.props.data.length; i++) {
+      this.lstShots.push(JSON.parse(JSON.stringify(this.props.data[i])));
+    }
+
+    this.svgObj.selectAll("circle").remove();
+    this.circle = this.svgObj
+      .selectAll("circle")
+      .data(this.lstShots)
+      .enter()
+      .append("circle")
+      .attr("r", this.circleRadius)
+      .attr("fill", "white")
+      //.attr("transform", this.getCirclePos)
+      .attr("node", function(d) {
+        return JSON.stringify(d);
+      })
+      .style("cursor", "pointer")
+      .on("click", function(d) {
+        var url =
+          "https://www.google.com/maps?t=k&q=loc:" + d.lat + "+" + d.long;
+        var win = window.open(url, "_blank");
+        win.focus();
+      });
+
+    this.lstRadius.forEach(function(d, i) {
+      this.svgObj
+        .selectAll("circle")
+        .filter(function(d) {
+          return d.isNew;
+        })
+        .transition()
+        .duration(this.duration)
+        .delay(i * this.duration)
+        .attr("r", d)
+        .attr("fill", this.lstColor[i]);
+    }, this);
+
+    const proj = this.projection;
+    const feat = this.feature;
+    const p = this.path;
+    const cir = this.circle;
+    const gcp = this.getCirclePos;
+
+    this.zoom = this.d3Zoom.on("zoom", function() {
+      proj
+        .translate([d3.event.transform.x, d3.event.transform.y])
+        .scale(d3.event.transform.k);
+      feat.attr("d", p);
+      cir.attr("transform", gcp);
+    });
+
+    this.svgObj.call(this.zoom);
+    this.svgObj.call(
+      this.zoom.transform,
+      d3Z.zoomIdentity
+        .translate(
+          this.projection.translate()[0],
+          this.projection.translate()[1]
+        )
+        .scale(this.projection.scale())
+    );
+  }
+
+  render() {
+    return (
+      <div className="svgMap svg-container">
+        <h1>{this.props.duration}</h1>
+        <svg id="svgMap" />
+      </div>
+    );
+  }
 }

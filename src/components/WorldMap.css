@@ -1,32 +1,134 @@
 html, body {
-        padding: 0;
-        margin: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        position: relative;
-        background: #222234;
-    }
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    background: #222234;
+}
 
-    body > div, #root {
-        position: absolute;
-        overflow: hidden;
-    }
+body > div, #root {
+    position: absolute;
+    overflow: hidden;
+}
 
-    #map, #root {
-        left: 0;
-        top: 0;
-        z-index: 0;
-        width: 100%;
-        height: 100%;
-    }
+#map, #root {
+    /*left: 0;
+    top: 0;
+    z-index: 0;
+    width: 1000px;
+    height: 500px;*/
 
-    #map svg {
-        width: 100%;
-        height: 100%;
-    }
+    left: 0;
+    top: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+}
 
-    .feature {
-        fill : #2C2C43;
-        stroke : #4A4A70;
-    }
+#map svg {
+    width: 100%;
+    height: 100%;
+}
+
+.feature {
+    fill : #2C2C43;
+    stroke : #4A4A70;
+}
+
+circle {
+		stroke: #5cb349;
+        stroke-width: 0.5;
+	}
+
+  .svgMap{
+
+    height: 100%;
+    width: 100%;
+  }
+
+
+
+
+
+
+
+
+
+.modalDialog {
+	position: fixed;
+	font-family: Arial, Helvetica, sans-serif;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background: rgba(0,0,0,0.8);
+	z-index: 99999;
+	/*opacity:0;*/
+	-webkit-transition: opacity 400ms ease-in;
+	-moz-transition: opacity 400ms ease-in;
+	transition: opacity 400ms ease-in;
+/*	pointer-events: none;*/
+}
+
+
+
+
+
+.modalDialog:target {
+	opacity:1;
+	pointer-events: auto;
+}
+
+.modalDialog > div {
+	width: 400px;
+	position: relative;
+	margin: 10% auto;
+	padding: 5px 20px 13px 20px;
+	border-radius: 10px;
+	background: #fff;
+	background: -moz-linear-gradient(#fff, #999);
+	background: -webkit-linear-gradient(#fff, #999);
+	background: -o-linear-gradient(#fff, #999);
+}
+
+
+
+
+
+.close {
+	background: #606061;
+	color: #FFFFFF;
+	line-height: 25px;
+	position: absolute;
+	right: -12px;
+	text-align: center;
+	top: -10px;
+	width: 24px;
+	text-decoration: none;
+	font-weight: bold;
+	-webkit-border-radius: 12px;
+	-moz-border-radius: 12px;
+	border-radius: 12px;
+	-moz-box-shadow: 1px 1px 3px #000;
+	-webkit-box-shadow: 1px 1px 3px #000;
+	box-shadow: 1px 1px 3px #000;
+}
+
+.close:hover { background: #00d9ff; }
+
+.svg-container {
+      display: inline-block;
+      position: relative;
+      width: 100%;
+      padding-bottom: 100%; / aspect ratio /
+      vertical-align: top;
+      overflow: hidden;
+  }
+  .svg-content-responsive {
+      display: inline-block;
+      position: absolute;
+      top: 10px;
+      left: 0;
+  }
